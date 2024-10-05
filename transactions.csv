@@ -1,0 +1,2 @@
+Transaction_ID,Date,Customer_Name,Product,Total_Items,Total_Cost,Payment_Method,City,Store_Type,Discount_Applied,Customer_Category,Season,Promotion
+2aaffe51-5d43-4a71-a9a8-5d134e7b9b19,2024-10-05,John Doe,Smartphone,1,799.99,Credit Card,New York,Retail,true,Regular,Fall,Black Friday Sale

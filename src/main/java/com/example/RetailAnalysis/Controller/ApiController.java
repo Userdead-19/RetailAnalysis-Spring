@@ -23,7 +23,7 @@ class response1 {
 @RequestMapping("/api")
 public class ApiController {
 
-    @GetMapping("/")
+    @GetMapping("/hello")
     ResponseEntity<response1> sendResponse() {
         response1 response = new response1();
         response.setMessage("HEllo world");
