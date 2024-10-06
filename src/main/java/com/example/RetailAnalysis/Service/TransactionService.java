@@ -1,12 +1,15 @@
 package com.example.RetailAnalysis.Service;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -21,12 +24,12 @@ public class TransactionService {
 
     // Get all transactions
     public List<Transaction> getAllTransactions() {
-        List<Transaction> transactions = null;
+        List<Transaction> transactions = new ArrayList<>(); // Initialize to avoid null
 
         try (Reader reader = new BufferedReader(new FileReader(CSV_FILE))) {
             CsvToBean<Transaction> csvToBean = new CsvToBeanBuilder<Transaction>(reader)
                     .withType(Transaction.class) // Specify the type of beans to be created
-                    .withIgnoreLeadingWhiteSpace(true) // Optional: Ignore leading whitespace
+                    .withIgnoreLeadingWhiteSpace(true) // Ignore leading whitespace
                     .build();
 
             System.out.println("Reading transactions from CSV file");
@@ -34,15 +37,21 @@ public class TransactionService {
             transactions = csvToBean.parse();
 
             // Log the parsed transactions
-            for (Transaction transaction : transactions) {
-                System.out.println(transaction);
+            if (!transactions.isEmpty()) {
+                transactions.forEach(transaction -> System.out.println(transaction));
+            } else {
+                System.out.println("No transactions found in the CSV file.");
             }
 
+        } catch (FileNotFoundException e) {
+            System.err.println("CSV file not found: " + CSV_FILE);
         } catch (IOException e) {
             System.err.println("Error reading the CSV file: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error while processing the CSV file: " + e.getMessage());
         }
 
-        return transactions;
+        return transactions; // Will return empty list if any exception occurs
     }
 
     // Add new transaction
@@ -62,10 +71,10 @@ public class TransactionService {
     private void writeTransactionsToCSV(List<Transaction> transactions) throws IOException {
 
         try (FileWriter writer = new FileWriter(CSV_FILE)) {
-            // Write the header in the required order
+            // Write the header
             writer.append("Transaction_ID,Date,Customer_Name,Product,Total_Items,Total_Cost,Payment_Method,City,Store_Type,Discount_Applied,Customer_Category,Season,Promotion\n");
 
-            // Loop through the transactions and write each one in the correct order
+            // Write each transaction to the CSV file
             for (Transaction transaction : transactions) {
                 writer.append(transaction.getTransactionId())
                         .append(",")
@@ -73,7 +82,8 @@ public class TransactionService {
                         .append(",")
                         .append(transaction.getCustomerName())
                         .append(",")
-                        .append(transaction.getProduct())
+                        // Format the Product list as ['Product1', 'Product2', 'Product3']
+                        .append(formatProductList(transaction.getProduct()))
                         .append(",")
                         .append(String.valueOf(transaction.getTotalItems()))
                         .append(",")
@@ -97,6 +107,16 @@ public class TransactionService {
         } catch (IOException e) {
             throw new IOException("Error writing transactions to CSV file", e);
         }
+    }
+
+    private String formatProductList(List<String> products) {
+        if (products == null || products.isEmpty()) {
+            return "[]"; // Return empty list representation
+        }
+        // Format products as ['Product1', 'Product2', 'Product3']
+        return products.stream()
+                .map(product -> "'" + product + "'") // Surround each product with single quotes
+                .collect(Collectors.joining(", ", "[", "]")); // Join with comma, enclosed in brackets
     }
 
     // Update transaction

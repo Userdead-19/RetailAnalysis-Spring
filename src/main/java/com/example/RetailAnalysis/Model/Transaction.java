@@ -1,6 +1,10 @@
 package com.example.RetailAnalysis.Model;
 
+import java.util.List;
+
+import com.example.RetailAnalysis.utils.ProductListConverter;
 import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvCustomBindByName;
 
 public class Transaction {
 
@@ -8,13 +12,14 @@ public class Transaction {
     private String transactionId;
 
     @CsvBindByName(column = "Date")
-    private String date; // You might want to use LocalDate for better date handling
+    private String date;
 
     @CsvBindByName(column = "Customer_Name")
     private String customerName;
 
-    @CsvBindByName(column = "Product")
-    private String product;
+    // Modify the field to be a List<String>
+    @CsvCustomBindByName(column = "Product", converter = ProductListConverter.class)
+    private List<String> product;
 
     @CsvBindByName(column = "Total_Items")
     private int totalItems;
@@ -68,11 +73,11 @@ public class Transaction {
         this.customerName = customerName;
     }
 
-    public String getProduct() {
+    public List<String> getProduct() {
         return product;
     }
 
-    public void setProduct(String product) {
+    public void setProduct(List<String> product) {
         this.product = product;
     }
 
@@ -154,7 +159,7 @@ public class Transaction {
                 + "Transaction_ID='" + transactionId + '\''
                 + ", Date='" + date + '\''
                 + ", Customer_Name='" + customerName + '\''
-                + ", Product='" + product + '\''
+                + ", Product=" + product
                 + ", Total_Items=" + totalItems
                 + ", Total_Cost=" + totalCost
                 + ", Payment_Method='" + paymentMethod + '\''
