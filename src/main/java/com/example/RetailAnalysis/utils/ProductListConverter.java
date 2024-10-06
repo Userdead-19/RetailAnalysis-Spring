@@ -27,6 +27,7 @@ public class ProductListConverter extends AbstractBeanField<String, List<String>
         if (value == null) {
             return "";
         }
+        @SuppressWarnings("unchecked")
         List<String> productList = (List<String>) value;
         // Convert list to string with comma-separated values
         return productList.stream()
